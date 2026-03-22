@@ -52,6 +52,7 @@ export const translations = {
     contact_us: 'Contact Us',
     faq: 'FAQ',
     language: 'Language',
+    admin_panel: 'Admin Panel',
   },
   fr: {
     app_name: 'Dewey Mentor AI',
@@ -104,5 +105,6 @@ export const translations = {
     contact_us: 'Contactez-nous',
     faq: 'FAQ',
     language: 'Langue',
+    admin_panel: 'Panneau Admin',
   }
 };

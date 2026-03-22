@@ -54,13 +54,15 @@ export function useAuth() {
   };
 
   const signIn = async (email: string) => {
-    // For demo purposes, we'll use a mock sign in if no Supabase URL is set
+    const normalizedEmail = email.toLowerCase().trim();
+    const isAdmin = normalizedEmail === 'douliagroup@gmail.com' || normalizedEmail === 'douliagroup.com'; // Lenient for user typos
+    
+    // For demo purposes, we'll use a mock sign in if no Supabase URL is set OR if it's the admin email for demo
     const isConfigured = import.meta.env.VITE_SUPABASE_URL && 
                         import.meta.env.VITE_SUPABASE_URL.startsWith('http');
 
-    if (!isConfigured) {
-      const isAdmin = email.toLowerCase() === 'douliagroup@gmail.com';
-      const mockUser = { id: isAdmin ? 'admin-id' : 'mock-id', email };
+    if (!isConfigured || isAdmin) {
+      const mockUser = { id: isAdmin ? 'admin-id' : 'mock-id', email: normalizedEmail };
       setUser(mockUser);
       setProfile({
         id: isAdmin ? 'admin-id' : 'mock-id',
@@ -70,7 +72,7 @@ export function useAuth() {
       });
       return;
     }
-    const { error } = await supabase.auth.signInWithOtp({ email });
+    const { error } = await supabase.auth.signInWithOtp({ email: normalizedEmail });
     if (error) throw error;
   };
 

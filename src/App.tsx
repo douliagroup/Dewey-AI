@@ -79,7 +79,7 @@ export default function App() {
             <div className="space-y-1">
               <label className="text-[10px] font-bold uppercase text-gray-400 ml-4">{t.identifier}</label>
               <input
-                type="email"
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={t.email_placeholder}
@@ -160,10 +160,35 @@ export default function App() {
                 <Settings profile={profile} onSignOut={signOut} lang={lang} />
               </motion.div>
             )}
+            {activeTab === 'admin' && profile?.role === 'admin' && (
+              <motion.div
+                key="admin"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="p-6 space-y-6"
+              >
+                <h1 className="text-2xl font-black text-dewey-dark">{t.admin_panel}</h1>
+                <div className="bg-dewey-dark/5 p-6 rounded-3xl border border-dewey-dark/10">
+                  <p className="text-sm font-bold text-dewey-dark mb-4">Gestion des Démos & Mises à jour</p>
+                  <div className="space-y-3">
+                    <button className="w-full p-4 bg-white rounded-2xl shadow-sm border border-gray-100 text-left text-sm font-bold">
+                      Importer des résultats académiques
+                    </button>
+                    <button className="w-full p-4 bg-white rounded-2xl shadow-sm border border-gray-100 text-left text-sm font-bold">
+                      Gérer les comptes parents
+                    </button>
+                    <button className="w-full p-4 bg-white rounded-2xl shadow-sm border border-gray-100 text-left text-sm font-bold">
+                      Statistiques d'utilisation IA
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </AnimatePresence>
         </main>
 
-        <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} lang={lang} />
+        <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} lang={lang} role={profile?.role} />
       </div>
     </div>
   );

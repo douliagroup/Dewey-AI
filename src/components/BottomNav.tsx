@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, TrendingUp, MessageSquare, Settings } from 'lucide-react';
+import { LayoutDashboard, TrendingUp, MessageSquare, Settings, ShieldAlert } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { translations, Language } from '../translations';
 
@@ -7,9 +7,10 @@ interface BottomNavProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   lang: Language;
+  role?: string;
 }
 
-export function BottomNav({ activeTab, setActiveTab, lang }: BottomNavProps) {
+export function BottomNav({ activeTab, setActiveTab, lang, role }: BottomNavProps) {
   const t = translations[lang];
 
   const tabs = [
@@ -18,6 +19,10 @@ export function BottomNav({ activeTab, setActiveTab, lang }: BottomNavProps) {
     { id: 'ai', label: t.ai_mentor, icon: MessageSquare },
     { id: 'settings', label: t.settings, icon: Settings },
   ];
+
+  if (role === 'admin') {
+    tabs.splice(3, 0, { id: 'admin', label: t.admin_panel, icon: ShieldAlert });
+  }
 
   return (
     <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-200 pb-safe shadow-lg z-50">
