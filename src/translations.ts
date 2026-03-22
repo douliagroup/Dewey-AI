@@ -3,7 +3,7 @@ export type Language = 'en' | 'fr';
 export const translations = {
   en: {
     app_name: 'Dewey Mentor AI',
-    slogan: 'Excellence through Technology',
+    slogan: 'Excellence through Science and Technology',
     login: 'Log In',
     email_placeholder: 'parent@dewey.school',
     identifier: 'Identifier / Email',
@@ -55,7 +55,7 @@ export const translations = {
   },
   fr: {
     app_name: 'Dewey Mentor AI',
-    slogan: "L'excellence par la Technologie",
+    slogan: "L'excellence par la Science et la Technologie",
     login: 'Se connecter',
     email_placeholder: 'parent@dewey.school',
     identifier: 'Identifiant / Email',

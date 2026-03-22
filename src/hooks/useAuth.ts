@@ -59,13 +59,14 @@ export function useAuth() {
                         import.meta.env.VITE_SUPABASE_URL.startsWith('http');
 
     if (!isConfigured) {
-      const mockUser = { id: 'mock-id', email };
+      const isAdmin = email.toLowerCase() === 'douliagroup@gmail.com';
+      const mockUser = { id: isAdmin ? 'admin-id' : 'mock-id', email };
       setUser(mockUser);
       setProfile({
-        id: 'mock-id',
-        full_name: 'Parent Demo',
-        role: 'parent',
-        student_id: 'child-123'
+        id: isAdmin ? 'admin-id' : 'mock-id',
+        full_name: isAdmin ? 'Administrator' : 'Parent Demo',
+        role: isAdmin ? 'admin' : 'parent',
+        student_id: isAdmin ? undefined : 'child-123'
       });
       return;
     }
