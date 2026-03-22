@@ -1,5 +1,6 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 import { Message } from "../types";
+import { Language } from "../translations";
 
 const SYSTEM_INSTRUCTION = `Tu es l'âme de l'application 'Dewey Mentor AI' de la Dewey International School. Tu es un conseiller d'orientation et psychosocial expert, moteur de la philosophie 'DOULIA Love'.
 
@@ -17,14 +18,27 @@ TES CAPACITÉS :
 
 PHILOSOPHIE DOULIA Love : Compassion, service et excellence académique par le soutien émotionnel.`;
 
-export async function chatWithMentor(messages: Message[], userData: any) {
+export async function chatWithMentor(messages: Message[], userData: any, lang: Language) {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
   
   const contextPrompt = `
-    Current User Data: ${JSON.stringify(userData)}
-    Conversation History: ${messages.map(m => `${m.role}: ${m.content}`).join('\n')}
+    LANGUE DE RÉPONSE OBLIGATOIRE : ${lang === 'fr' ? 'FRANÇAIS' : 'ENGLISH'}
     
-    Respond as Dewey Mentor AI following all formatting rules.
+    CONTEXTE UTILISATEUR :
+    - Profil : ${JSON.stringify(userData.profile)}
+    - Résultats Académiques (depuis Supabase) : ${JSON.stringify(userData.academicResults)}
+    
+    INSTRUCTIONS CRITIQUES :
+    1. RÉPONDRE UNIQUEMENT EN ${lang === 'fr' ? 'FRANÇAIS' : 'ENGLISH'}. Ne mélange JAMAIS les deux langues.
+    2. Utilise UNIQUEMENT les "Résultats Académiques" fournis ci-dessus pour parler des notes ou de la progression.
+    3. Si la liste "Résultats Académiques" est vide [], dis poliment que tu n'as pas encore accès aux notes de l'élève sur Supabase.
+    4. NE JAMAIS inventer de notes ou de matières qui ne sont pas dans la liste fournie.
+    5. Analyse les tendances : si les notes baissent, propose un plan psychosocial.
+    
+    HISTORIQUE DE LA CONVERSATION :
+    ${messages.map(m => `${m.role}: ${m.content}`).join('\n')}
+    
+    Réponds en tant que Dewey Mentor AI en respectant toutes les règles de formatage et la langue imposée.
   `;
 
   try {

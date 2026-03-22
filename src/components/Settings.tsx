@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { LogOut, User, Bell, Shield, HelpCircle, ChevronRight, X, Mail, Smartphone, Lock, Eye } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { LogOut, User, Bell, Shield, HelpCircle, ChevronRight, X, Mail, Smartphone, Lock, Eye, Database, CheckCircle2, XCircle } from 'lucide-react';
 import { Profile } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { translations, Language } from '../translations';
+import { supabase } from '../lib/supabase';
 
 interface SettingsProps {
   profile: Profile;
@@ -13,6 +14,34 @@ interface SettingsProps {
 export function Settings({ profile, onSignOut, lang }: SettingsProps) {
   const t = translations[lang];
   const [activeModal, setActiveModal] = useState<string | null>(null);
+  const [supabaseStatus, setSupabaseStatus] = useState<'checking' | 'connected' | 'error' | 'not_configured'>('checking');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function checkSupabase() {
+      const url = import.meta.env.VITE_SUPABASE_URL;
+      const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+      if (!url || !key || url.includes('placeholder')) {
+        setSupabaseStatus('not_configured');
+        return;
+      }
+
+      try {
+        const { error } = await supabase.from('profiles').select('id').limit(1);
+        if (error) {
+          setSupabaseStatus('error');
+          setErrorMessage(error.message);
+        } else {
+          setSupabaseStatus('connected');
+        }
+      } catch (err) {
+        setSupabaseStatus('error');
+        setErrorMessage(err instanceof Error ? err.message : String(err));
+      }
+    }
+    checkSupabase();
+  }, []);
 
   const sections = [
     { id: 'profile', icon: User, label: t.personal_profile, color: 'text-blue-500' },
@@ -38,6 +67,45 @@ export function Settings({ profile, onSignOut, lang }: SettingsProps) {
         <h2 className="mt-4 text-xl font-bold text-dewey-dark">{profile.full_name}</h2>
         <p className="text-sm text-gray-500 uppercase tracking-widest font-semibold">{profile.role}</p>
       </header>
+
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-gray-50 rounded-xl">
+              <Database size={20} className="text-dewey-dark" />
+            </div>
+            <div>
+              <p className="text-sm font-bold">Supabase Status</p>
+              <p className="text-[10px] text-gray-500 uppercase tracking-wider">Database Connection</p>
+            </div>
+          </div>
+          {supabaseStatus === 'checking' && <div className="animate-spin h-4 w-4 border-2 border-dewey-dark border-t-transparent rounded-full" />}
+          {supabaseStatus === 'connected' && <CheckCircle2 size={20} className="text-green-500" />}
+          {supabaseStatus === 'error' && <XCircle size={20} className="text-red-500" />}
+          {supabaseStatus === 'not_configured' && <XCircle size={20} className="text-dewey-orange" />}
+        </div>
+
+        <div className="pt-2 border-t border-gray-50">
+          {supabaseStatus === 'connected' && (
+            <p className="text-xs text-green-600 font-medium">
+              {lang === 'fr' ? 'Connecté avec succès à Supabase.' : 'Successfully connected to Supabase.'}
+            </p>
+          )}
+          {supabaseStatus === 'not_configured' && (
+            <p className="text-xs text-dewey-orange font-medium">
+              {lang === 'fr' ? 'Variables d\'environnement manquantes ou incorrectes.' : 'Environment variables missing or incorrect.'}
+            </p>
+          )}
+          {supabaseStatus === 'error' && (
+            <div className="space-y-1">
+              <p className="text-xs text-red-600 font-medium">
+                {lang === 'fr' ? 'Erreur de connexion :' : 'Connection error:'}
+              </p>
+              <p className="text-[10px] text-red-400 font-mono break-all">{errorMessage}</p>
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
         {sections.map((item, idx) => {

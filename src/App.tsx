@@ -130,14 +130,14 @@ export default function App() {
                 <Dashboard profile={profile} lang={lang} />
               </motion.div>
             )}
-            {activeTab === 'progress' && (
+            {activeTab === 'progress' && profile && (
               <motion.div
                 key="progress"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
-                <Progress lang={lang} />
+                <Progress lang={lang} profile={profile} />
               </motion.div>
             )}
             {activeTab === 'ai' && profile && (

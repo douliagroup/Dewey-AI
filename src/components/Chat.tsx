@@ -85,7 +85,7 @@ export function Chat({ profile, lang }: ChatProps) {
       academicResults: academicData
     };
 
-    const response = await chatWithMentor([...messages, userMessage], fullContext);
+    const response = await chatWithMentor([...messages, userMessage], fullContext, lang);
     
     const assistantMessage: Message = {
       id: (Date.now() + 1).toString(),

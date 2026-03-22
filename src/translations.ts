@@ -53,6 +53,13 @@ export const translations = {
     faq: 'FAQ',
     language: 'Language',
     admin_panel: 'Admin Panel',
+    class_rank: 'Class Rank',
+    progression: 'Progression',
+    grades_by_subject: 'Grades by Subject',
+    mentor_advice: 'Mentor Advice',
+    mentor_advice_content: "Focus on English this week. A slight dip was noted, but with your potential, you'll bounce back quickly!",
+    average_label: 'Average',
+    attendance_label: 'Attendance',
   },
   fr: {
     app_name: 'Dewey Mentor AI',
@@ -106,5 +113,12 @@ export const translations = {
     faq: 'FAQ',
     language: 'Langue',
     admin_panel: 'Panneau Admin',
+    class_rank: 'Rang Classe',
+    progression: 'Progression',
+    grades_by_subject: 'Notes par Matière',
+    mentor_advice: 'Conseil du Mentor',
+    mentor_advice_content: "Concentrez-vous sur l'Anglais cette semaine. Une légère baisse a été notée, mais avec votre potentiel, vous remonterez vite !",
+    average_label: 'Moyenne',
+    attendance_label: 'Présence',
   }
 };

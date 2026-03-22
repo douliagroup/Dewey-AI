@@ -84,18 +84,18 @@ export function Dashboard({ profile, lang }: DashboardProps) {
             </div>
             
             <div>
-              <h2 className="text-xl font-bold">Jean-Paul Dewey</h2>
-              <p className="text-sm text-white/60">Upper Sixth - Science</p>
+              <h2 className="text-xl font-bold">{profile.full_name}</h2>
+              <p className="text-sm text-white/60">{profile.role === 'student' ? 'Student' : profile.role}</p>
             </div>
 
             <div className="flex items-center space-x-4">
               <div className="space-y-1">
-                <p className="text-[10px] uppercase text-white/40">{t.average}</p>
+                <p className="text-[10px] uppercase text-white/40">{t.average_label}</p>
                 <p className="text-2xl font-bold text-dewey-lemon">{latestResult?.grade || '--'}/20</p>
               </div>
               <div className="h-8 w-px bg-white/10" />
               <div className="space-y-1">
-                <p className="text-[10px] uppercase text-white/40">{t.attendance}</p>
+                <p className="text-[10px] uppercase text-white/40">{t.attendance_label}</p>
                 <p className={cn("text-2xl font-bold", isAttendanceLow ? "text-dewey-orange" : "text-white")}>
                   {latestResult?.attendance_rate || '--'}%
                 </p>
