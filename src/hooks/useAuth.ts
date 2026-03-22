@@ -16,6 +16,16 @@ export function useAuth() {
       return;
     }
 
+    // Check for mock session in localStorage for persistence during testing
+    const mockSession = localStorage.getItem('dewey_mock_session');
+    if (mockSession) {
+      const { user: mUser, profile: mProfile } = JSON.parse(mockSession);
+      setUser(mUser);
+      setProfile(mProfile);
+      setLoading(false);
+      return;
+    }
+
     // Check active sessions and sets the user
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -66,7 +76,29 @@ export function useAuth() {
 
   const signIn = async (email: string) => {
     const normalizedEmail = email.toLowerCase().trim();
-    const isAdmin = normalizedEmail === 'douliagroup@gmail.com' || normalizedEmail === 'douliagroup.com'; // Lenient for user typos
+    
+    // Bypass for test accounts to avoid OTP issues during development/demo
+    const isTestAdmin = normalizedEmail === 'douliagroup@gmail.com' || normalizedEmail === 'douliagroup.com';
+    const isTestParent = normalizedEmail === 'marcbagnack@gmail.com';
+
+    if (isTestAdmin || isTestParent) {
+      const mockUser = { 
+        id: isTestAdmin ? 'admin-id-mock' : 'parent-id-mock', 
+        email: normalizedEmail 
+      };
+      const mockProfile: Profile = {
+        id: mockUser.id,
+        full_name: isTestAdmin ? 'Administrateur Dewey' : 'Marc Bagnack (Parent)',
+        role: isTestAdmin ? 'admin' : 'parent',
+        student_id: isTestAdmin ? undefined : '04c5c05d-6811-4134-a7a5-1dd487ef71f7' // Oben Kotto's ID from screenshot for demo
+      };
+
+      setUser(mockUser);
+      setProfile(mockProfile);
+      localStorage.setItem('dewey_mock_session', JSON.stringify({ user: mockUser, profile: mockProfile }));
+      setLoading(false);
+      return;
+    }
     
     // Only use mock sign in if Supabase is NOT configured
     const isConfigured = import.meta.env.VITE_SUPABASE_URL && 
@@ -76,12 +108,14 @@ export function useAuth() {
       const isAdmin = normalizedEmail === 'douliagroup@gmail.com' || normalizedEmail === 'douliagroup.com';
       const mockUser = { id: isAdmin ? 'admin-id' : 'mock-id', email: normalizedEmail };
       setUser(mockUser);
-      setProfile({
+      const mockProfile: Profile = {
         id: isAdmin ? 'admin-id' : 'mock-id',
         full_name: isAdmin ? 'Administrator' : 'Parent Demo',
         role: isAdmin ? 'admin' : 'parent',
         student_id: isAdmin ? undefined : 'child-123'
-      });
+      };
+      setProfile(mockProfile);
+      localStorage.setItem('dewey_mock_session', JSON.stringify({ user: mockUser, profile: mockProfile }));
       return;
     }
     const { error } = await supabase.auth.signInWithOtp({ email: normalizedEmail });
@@ -90,6 +124,7 @@ export function useAuth() {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    localStorage.removeItem('dewey_mock_session');
     setUser(null);
     setProfile(null);
   };
