@@ -39,13 +39,23 @@ export function useAuth() {
   const fetchProfile = async (userId: string) => {
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('profils')
         .select('*')
         .eq('id', userId)
         .single();
 
       if (error) throw error;
-      setProfile(data);
+      
+      // Map French column names to our internal Profile type
+      const mappedProfile: Profile = {
+        id: data.id,
+        full_name: data.full_name || data.nom_complet || 'User',
+        role: data.role || 'parent',
+        avatar_url: data.avatar_url,
+        student_id: data.student_id || data.identifiant_étudiant
+      };
+      
+      setProfile(mappedProfile);
     } catch (error) {
       console.error('Error fetching profile:', error);
     } finally {

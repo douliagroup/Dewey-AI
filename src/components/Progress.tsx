@@ -31,12 +31,24 @@ export function Progress({ lang, profile }: ProgressProps) {
 
       if (profile.student_id) {
         const { data } = await supabase
-          .from('academic_results')
+          .from('résultats_académiques')
           .select('*')
-          .eq('student_id', profile.student_id)
+          .eq('identifiant_étudiant', profile.student_id)
           .order('created_at', { ascending: false });
         
-        if (data) setResults(data);
+        if (data) {
+          const mappedData: AcademicResult[] = data.map((item: any) => ({
+            id: item.identifiant,
+            student_id: item.identifiant_étudiant,
+            subject: item.sujet,
+            grade: typeof item.grade === 'string' ? parseFloat(item.grade.replace(',', '.')) : item.grade,
+            term: item.trimestre || 'Term 2',
+            year: item.année || '2025-2026',
+            attendance_rate: item.taux_de_fréquentation || 82,
+            created_at: item.created_at
+          }));
+          setResults(mappedData);
+        }
       }
       setLoading(false);
     }
