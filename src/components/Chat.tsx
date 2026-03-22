@@ -30,13 +30,27 @@ export function Chat({ profile, lang }: ChatProps) {
   const [isTyping, setIsTyping] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
-  const [academicData, setAcademicData] = useState<AcademicResult[]>([]);
+  const [academicResults, setAcademicResults] = useState<AcademicResult[]>([]);
+  const [allProfiles, setAllProfiles] = useState<any[]>([]);
+  const [allResults, setAllResults] = useState<any[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
+    async function fetchBroadData() {
+      if (profile.role === 'admin') {
+        const { data: profs } = await supabase.from('profils').select('identifiant, "nom et prénom", rôle');
+        const { data: res } = await supabase.from('résultats_académiques').select('*');
+        if (profs) setAllProfiles(profs);
+        if (res) setAllResults(res);
+      }
+    }
+    fetchBroadData();
+  }, [profile]);
+
+  useEffect(() => {
     async function fetchAcademicData() {
-      if (profile.student_id) {
+      if (profile.student_id && profile.role !== 'admin') {
         const { data } = await supabase
           .from('résultats_académiques')
           .select('*')
@@ -49,12 +63,12 @@ export function Chat({ profile, lang }: ChatProps) {
             student_id: item.identifiant_étudiant,
             subject: item.sujet,
             grade: typeof item.grade === 'string' ? parseFloat(item.grade.replace(',', '.')) : item.grade,
-            term: item.trimestre || 'Term 2',
+            term: item.terme || 'Term 2',
             year: item.année || '2025-2026',
             attendance_rate: item.taux_de_fréquentation || 82,
             created_at: item.created_at
           }));
-          setAcademicData(mappedData);
+          setAcademicResults(mappedData);
         }
       }
     }
@@ -94,7 +108,8 @@ export function Chat({ profile, lang }: ChatProps) {
 
     const fullContext = {
       profile,
-      academicResults: academicData
+      academicResults: profile.role === 'admin' ? allResults : academicResults,
+      allProfiles: profile.role === 'admin' ? allProfiles : []
     };
 
     const response = await chatWithMentor([...messages, userMessage], fullContext, lang);

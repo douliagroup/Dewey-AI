@@ -40,19 +40,20 @@ export function useAuth() {
     try {
       const { data, error } = await supabase
         .from('profils')
-        .select('*')
-        .eq('id', userId)
+        .select('identifiant, "nom et prénom", rôle')
+        .eq('identifiant', userId)
         .single();
 
       if (error) throw error;
       
-      // Map French column names to our internal Profile type
+      // Map exact French column names from screenshot
       const mappedProfile: Profile = {
-        id: data.id,
-        full_name: data.full_name || data.nom_complet || 'User',
-        role: data.role || 'parent',
-        avatar_url: data.avatar_url,
-        student_id: data.student_id || data.identifiant_étudiant
+        id: data['identifiant'],
+        full_name: data["nom et prénom"] || 'User',
+        role: (data['rôle'] === 'professeur' ? 'teacher' : 
+               data['rôle'] === 'étudiant' ? 'student' : 
+               data['rôle'] === 'administrateur' ? 'admin' : 'parent') as any,
+        student_id: data['identifiant'] // For students, their own ID is the student_id
       };
       
       setProfile(mappedProfile);
@@ -67,11 +68,12 @@ export function useAuth() {
     const normalizedEmail = email.toLowerCase().trim();
     const isAdmin = normalizedEmail === 'douliagroup@gmail.com' || normalizedEmail === 'douliagroup.com'; // Lenient for user typos
     
-    // For demo purposes, we'll use a mock sign in if no Supabase URL is set OR if it's the admin email for demo
+    // Only use mock sign in if Supabase is NOT configured
     const isConfigured = import.meta.env.VITE_SUPABASE_URL && 
                         import.meta.env.VITE_SUPABASE_URL.startsWith('http');
 
-    if (!isConfigured || isAdmin) {
+    if (!isConfigured) {
+      const isAdmin = normalizedEmail === 'douliagroup@gmail.com' || normalizedEmail === 'douliagroup.com';
       const mockUser = { id: isAdmin ? 'admin-id' : 'mock-id', email: normalizedEmail };
       setUser(mockUser);
       setProfile({

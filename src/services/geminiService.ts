@@ -26,14 +26,18 @@ export async function chatWithMentor(messages: Message[], userData: any, lang: L
     
     CONTEXTE UTILISATEUR :
     - Profil : ${JSON.stringify(userData.profile)}
-    - Résultats Académiques (depuis Supabase) : ${JSON.stringify(userData.academicResults)}
+    
+    DONNÉES EN TEMPS RÉEL DE LA BASE DE DONNÉES SUPABASE :
+    - PROFILS : ${JSON.stringify(userData.allProfiles || [])}
+    - RÉSULTATS ACADÉMIQUES : ${JSON.stringify(userData.academicResults || [])}
     
     INSTRUCTIONS CRITIQUES :
     1. RÉPONDRE UNIQUEMENT EN ${lang === 'fr' ? 'FRANÇAIS' : 'ENGLISH'}. Ne mélange JAMAIS les deux langues.
-    2. Utilise UNIQUEMENT les "Résultats Académiques" fournis ci-dessus pour parler des notes ou de la progression.
-    3. Si la liste "Résultats Académiques" est vide [], dis poliment que tu n'as pas encore accès aux notes de l'élève sur Supabase.
-    4. NE JAMAIS inventer de notes ou de matières qui ne sont pas dans la liste fournie.
-    5. Analyse les tendances : si les notes baissent, propose un plan psychosocial.
+    2. Utilise STRICTEMENT les données JSON ci-dessus pour répondre aux questions sur les notes, les élèves ou le personnel.
+    3. Si les données sont vides [], dis poliment que tu n'as pas encore accès aux informations sur Supabase.
+    4. NE JAMAIS inventer de notes ou de rôles qui ne sont pas dans les données fournies.
+    5. Pour les questions sur des personnes spécifiques (ex: Oben Kotto, Monsieur Kamga), cherche-les dans la liste des PROFILS.
+    6. Analyse les tendances : si les notes baissent, propose un plan psychosocial.
     
     HISTORIQUE DE LA CONVERSATION :
     ${messages.map(m => `${m.role}: ${m.content}`).join('\n')}
