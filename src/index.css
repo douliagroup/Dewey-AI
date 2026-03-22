@@ -27,3 +27,15 @@
 .tab-inactive {
   @apply text-dewey-dark/60;
 }
+
+.list-decimal-custom li {
+  counter-increment: chat-list;
+}
+
+.list-decimal-custom .list-marker::before {
+  content: counter(chat-list);
+}
+
+.list-bullet-custom .list-marker::before {
+  content: "•";
+}
