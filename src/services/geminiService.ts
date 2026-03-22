@@ -28,16 +28,20 @@ export async function chatWithMentor(messages: Message[], userData: any, lang: L
     - Profil : ${JSON.stringify(userData.profile)}
     
     DONNÉES EN TEMPS RÉEL DE LA BASE DE DONNÉES SUPABASE :
-    - PROFILS : ${JSON.stringify(userData.allProfiles || [])}
-    - RÉSULTATS ACADÉMIQUES : ${JSON.stringify(userData.academicResults || [])}
+    - PROFILS (Table 'profils') : ${JSON.stringify(userData.allProfiles || [])}
+    - RÉSULTATS ACADÉMIQUES (Table 'resultats_academiques') : ${JSON.stringify(userData.academicResults || [])}
     
     INSTRUCTIONS CRITIQUES :
     1. RÉPONDRE UNIQUEMENT EN ${lang === 'fr' ? 'FRANÇAIS' : 'ENGLISH'}. Ne mélange JAMAIS les deux langues.
     2. Utilise STRICTEMENT les données JSON ci-dessus pour répondre aux questions sur les notes, les élèves ou le personnel.
-    3. Si les données sont vides [], dis poliment que tu n'as pas encore accès aux informations sur Supabase.
-    4. NE JAMAIS inventer de notes ou de rôles qui ne sont pas dans les données fournies.
-    5. Pour les questions sur des personnes spécifiques (ex: Oben Kotto, Monsieur Kamga), cherche-les dans la liste des PROFILS.
-    6. Analyse les tendances : si les notes baissent, propose un plan psychosocial.
+    3. CORRESPONDANCE DES RÔLES : Note que 'admin' = 'administrateur', 'teacher' = 'professeur', 'student' = 'étudiant'.
+    4. CORRESPONDANCE DES COLONNES : 
+       - Profils : 'nom_complet' est le nom, 'role' est le rôle.
+       - Résultats : 'matiere' est la matière, 'note' est la note, 'trimestre' est le trimestre.
+    5. Si les données sont vides [], dis poliment que tu n'as pas encore accès aux informations sur Supabase.
+    6. NE JAMAIS inventer de notes ou de rôles qui ne sont pas dans les données fournies.
+    7. Pour les questions sur des personnes spécifiques (ex: Oben Kotto, Monsieur Kamga), cherche-les dans la liste des PROFILS.
+    8. Analyse les tendances : si les notes baissent, propose un plan psychosocial.
     
     HISTORIQUE DE LA CONVERSATION :
     ${messages.map(m => `${m.role}: ${m.content}`).join('\n')}

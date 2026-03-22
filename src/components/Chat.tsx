@@ -39,10 +39,24 @@ export function Chat({ profile, lang }: ChatProps) {
   useEffect(() => {
     async function fetchBroadData() {
       if (profile.role === 'admin') {
-        const { data: profs } = await supabase.from('profils').select('identifiant, "nom et prénom", rôle');
-        const { data: res } = await supabase.from('résultats_académiques').select('*');
-        if (profs) setAllProfiles(profs);
-        if (res) setAllResults(res);
+        const profileTables = ['profils', 'Profils', 'profils publics', 'profiles'];
+        const resultTables = ['resultats_academiques', 'résultats_académiques', 'Résultats Académiques', 'résultats_académiques_publics', 'academic_results'];
+        
+        for (const table of profileTables) {
+          const { data } = await supabase.from(table).select('*');
+          if (data && data.length > 0) {
+            setAllProfiles(data);
+            break;
+          }
+        }
+        
+        for (const table of resultTables) {
+          const { data } = await supabase.from(table).select('*');
+          if (data && data.length > 0) {
+            setAllResults(data);
+            break;
+          }
+        }
       }
     }
     fetchBroadData();
@@ -51,24 +65,29 @@ export function Chat({ profile, lang }: ChatProps) {
   useEffect(() => {
     async function fetchAcademicData() {
       if (profile.student_id && profile.role !== 'admin') {
-        const { data } = await supabase
-          .from('résultats_académiques')
-          .select('*')
-          .eq('identifiant_étudiant', profile.student_id)
-          .order('created_at', { ascending: false });
+        const resultTables = ['resultats_academiques', 'résultats_académiques', 'Résultats Académiques', 'résultats_académiques_publics', 'academic_results'];
         
-        if (data) {
-          const mappedData: AcademicResult[] = data.map((item: any) => ({
-            id: item.identifiant,
-            student_id: item.identifiant_étudiant,
-            subject: item.sujet,
-            grade: typeof item.grade === 'string' ? parseFloat(item.grade.replace(',', '.')) : item.grade,
-            term: item.terme || 'Term 2',
-            year: item.année || '2025-2026',
-            attendance_rate: item.taux_de_fréquentation || 82,
-            created_at: item.created_at
-          }));
-          setAcademicResults(mappedData);
+        for (const table of resultTables) {
+          const { data } = await supabase
+            .from(table)
+            .select('*')
+            .eq(table.includes('eleve_id') ? 'eleve_id' : (table.includes('identifiant') ? 'identifiant_étudiant' : 'id_étudiant'), profile.student_id)
+            .order('created_at', { ascending: false });
+          
+          if (data && data.length > 0) {
+            const mappedData: AcademicResult[] = data.map((item: any) => ({
+              id: item.id || item.identifiant,
+              student_id: item.eleve_id || item.identifiant_étudiant || item.id_étudiant,
+              subject: item.matiere || item.sujet || item.matière,
+              grade: typeof (item.note || item.grade) === 'string' ? parseFloat((item.note || item.grade).replace(',', '.')) : (item.note || item.grade),
+              term: item.trimestre || item.terme || 'Trimestre 1',
+              year: item.année || '2025-2026',
+              attendance_rate: item.taux_de_fréquentation || 82,
+              created_at: item.created_at
+            }));
+            setAcademicResults(mappedData);
+            break;
+          }
         }
       }
     }

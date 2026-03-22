@@ -48,22 +48,33 @@ export function useAuth() {
 
   const fetchProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('profils')
-        .select('identifiant, "nom et prénom", rôle')
-        .eq('identifiant', userId)
-        .single();
-
-      if (error) throw error;
+      // Try multiple possible table names for resilience
+      let data, error;
       
-      // Map exact French column names from screenshot
+      const tableNames = ['profils', 'Profils', 'profils publics', 'profiles'];
+      
+      for (const tableName of tableNames) {
+        const result = await supabase
+          .from(tableName)
+          .select('id, nom_complet, role, identifiant, "nom et prénom", rôle, full_name')
+          .eq(tableName.includes('identifiant') ? 'identifiant' : 'id', userId)
+          .maybeSingle();
+        
+        if (result.data) {
+          data = result.data;
+          break;
+        }
+      }
+
+      if (!data) throw new Error('Profile not found in any known table');
+      
       const mappedProfile: Profile = {
-        id: data['identifiant'],
-        full_name: data["nom et prénom"] || 'User',
-        role: (data['rôle'] === 'professeur' ? 'teacher' : 
-               data['rôle'] === 'étudiant' ? 'student' : 
-               data['rôle'] === 'administrateur' ? 'admin' : 'parent') as any,
-        student_id: data['identifiant'] // For students, their own ID is the student_id
+        id: data.id || data.identifiant,
+        full_name: data.nom_complet || data["nom et prénom"] || data.full_name || 'User',
+        role: (data.role || data.rôle) === 'professeur' || (data.role || data.rôle) === 'teacher' ? 'teacher' : 
+               (data.role || data.rôle) === 'étudiant' || (data.role || data.rôle) === 'student' ? 'student' : 
+               (data.role || data.rôle) === 'administrateur' || (data.role || data.rôle) === 'admin' ? 'admin' : 'parent' as any,
+        student_id: data.id || data.identifiant
       };
       
       setProfile(mappedProfile);
